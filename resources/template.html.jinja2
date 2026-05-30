@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archive WhatsApp</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+        }
+
+        /* Conteneur principal style WhatsApp Web */
+        .chat-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #efeae2;
+            /* Wallpaper officiel WhatsApp */
+            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
+            background-repeat: repeat;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 5% 20px 5%;
+            box-sizing: border-box;
+        }
+
+        /* Séparateur de date */
+        .date-divider {
+            align-self: center;
+            background-color: #ffffff;
+            color: #54656f;
+            font-size: 12.5px;
+            padding: 6px 12px;
+            border-radius: 7.5px;
+            margin: 16px 0;
+            box-shadow: 0 1px 0.5px rgba(11,20,26,.13);
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        /* Structure globale d'une bulle */
+        .message {
+            max-width: 65%;
+            margin-bottom: 4px; /* Rapproché si même émetteur */
+            padding: 6px 8px 6px 9px;
+            border-radius: 7.5px;
+            font-size: 14.2px;
+            line-height: 19px;
+            color: #111b21;
+            position: relative;
+            box-shadow: 0 1px 0.5px rgba(11,20,26,.13);
+            word-wrap: break-word;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Alignement des bulles */
+        .message.incoming {
+            background-color: #ffffff;
+            align-self: flex-start;
+        }
+
+        .message.outgoing {
+            background-color: #d9fdd3;
+            align-self: flex-end;
+        }
+
+        /* Nom de l'expéditeur (Utile pour les groupes) */
+        .sender {
+            font-size: 12.8px;
+            font-weight: 600;
+            color: #008069; /* Vert WhatsApp */
+            margin-bottom: 4px;
+        }
+
+        /* Conteneur Média (Images & Vidéos) */
+        .media-container {
+            margin: -3px -5px 4px -5px; /* Élargit le média dans la bulle */
+            border-radius: 6px;
+            overflow: hidden;
+            display: block;
+        }
+
+        .media-container img,
+        .media-container video {
+            max-width: 100%;
+            max-height: 350px;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Contenu textuel */
+        .text-content {
+            white-space: pre-wrap; /* Préserve les retours à la ligne */
+            margin-right: 40px; /* Laisse de la place pour l'heure à droite */
+        }
+
+        /* Heure du message */
+        .timestamp {
+            font-size: 11px;
+            color: #667781;
+            align-self: flex-end;
+            position: absolute;
+            bottom: 4px;
+            right: 7px;
+        }
+
+        /* Ajustement de l'heure si le message n'est QU'UN média */
+        .media-only .timestamp {
+            background: rgba(11, 20, 26, 0.4);
+            color: #ffffff;
+            padding: 2px 6px;
+            border-radius: 10px;
+            bottom: 8px;
+            right: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+
+        {% set counter = namespace(last_date="") %}
+
+        {% for message in messages %}
+            {% if counter.last_date != message.date_txt %}
+                {% set counter.last_date = message.date_txt %}
+                <div class="date-divider">{{ message.date_txt }}</div>
+            {% endif %}
+
+            {% if user == message.name %}
+                <div class="message outgoing">
+            {% else %}
+                <div class="message incoming">
+                <div class="sender">{{ message.name }}</div>
+            {% endif %}
+
+            {% for image in message.images %}
+                <div class="media-container">
+                    <img src="{{ image }}" alt="Image WhatsApp">
+                </div>
+            {% endfor %}
+
+            {% for video in message.videos %}
+                <div class="media-container">
+                    <video controls poster="{{ video }}">
+                        <source src="{{ video }}" type="video/mp4">
+                        Votre navigateur ne supporte pas la lecture de vidéos.
+                    </video>
+                </div>
+            {% endfor %}
+
+            {% for text in message.text %}
+                <div class="text-content">{{ text }}</div>
+            {% endfor %}
+
+
+                <div class="timestamp">{{ message.time_txt }}</div>
+                </div>
+        {% endfor %}
+
+        <!-- Séparateur de date -->
+
+        <!-- Message Entrant Basique -->
+        <div class="message incoming">
+            <div class="sender">John Doe</div>
+            <div class="text-content">Salut ! Tu as réussi à exporter toute la conversation finalement ?</div>
+            <div class="timestamp">14:32</div>
+        </div>
+
+        <!-- Message Sortant Basique -->
+        <div class="message outgoing">
+            <div class="text-content">Ouais, je suis en train de coder un script Python pour générer un fichier HTML propre. C'est carrément mieux.</div>
+            <div class="timestamp">14:35</div>
+        </div>
+
+        <!-- Message Entrant avec Image -->
+        <div class="message incoming">
+            <div class="sender">John Doe</div>
+            <div class="media-container">
+                <!-- Remplace par le chemin relatif de ton image extraite (ex: "Media/IMG-001.jpg") -->
+                <img src="https://picsum.photos/800/600" alt="Image WhatsApp">
+            </div>
+            <div class="text-content">Regarde ce que ça donne de mon côté !</div>
+            <div class="timestamp">14:36</div>
+        </div>
+
+        <!-- Message Sortant avec Vidéo Seule (Sans texte) -->
+        <div class="message outgoing media-only">
+            <div class="media-container">
+                <!-- Remplace par le chemin relatif de ta vidéo (ex: "Media/VID-002.mp4") -->
+                <video controls poster="https://picsum.photos/800/600">
+                    <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+                    Votre navigateur ne supporte pas la lecture de vidéos.
+                </video>
+            </div>
+            <div class="timestamp">14:40</div>
+        </div>
+
+        <div class="date-divider">Aujourd'hui</div>
+
+        <!-- Message Sortant Récent -->
+        <div class="message outgoing">
+            <div class="text-content">Ça rend super bien avec le CSS de WhatsApp Web ! Le lecteur vidéo fonctionne parfaitement.</div>
+            <div class="timestamp">15:02</div>
+        </div>
+
+    </div>
+
+</body>
+</html>
