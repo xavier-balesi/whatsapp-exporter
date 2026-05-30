@@ -92,6 +92,15 @@
             display: block;
         }
 
+        /* Modifié pour indiquer que les images sont cliquables */
+        .media-container.whatsapp-image {
+            cursor: pointer;
+            transition: opacity 0.2s ease-in-out;
+        }
+        .media-container.whatsapp-image:hover {
+            opacity: 0.9;
+        }
+
         /* Contenu textuel */
         .text-content {
             white-space: pre-wrap; /* Préserve les retours à la ligne */
@@ -117,6 +126,54 @@
             bottom: 8px;
             right: 8px;
         }
+
+        /* --- STYLE DE LA LIGHTBOX (Agrandissement) --- */
+        #lightbox {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(11, 20, 26, 0.9); /* Noir style WhatsApp Web */
+            align-items: center;
+            justify-content: center;
+            cursor: zoom-out;
+            opacity: 0;
+            transition: opacity 0.25s ease-in-out;
+        }
+
+        #lightbox.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        #lightbox-img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+            border-radius: 4px;
+            transform: scale(0.95);
+            transition: transform 0.25s ease-in-out;
+        }
+
+        #lightbox.active #lightbox-img {
+            transform: scale(1);
+        }
+
+        .close-lightbox {
+            position: absolute;
+            top: 20px; right: 25px;
+            color: #aebac1;
+            font-size: 35px;
+            font-weight: 300;
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.2s;
+        }
+        .close-lightbox:hover {
+            color: #ffffff;
+        }
     </style>
 </head>
 <body>
@@ -139,7 +196,8 @@
             {% endif %}
 
             {% for image in message.images %}
-                <div class="media-container">
+                {# Ajout de la classe et du data-full pour le JS #}
+                <div class="media-container whatsapp-image" data-full="{{ image }}">
                     <img src="{{ image }}" alt="Image WhatsApp">
                 </div>
             {% endfor %}
@@ -157,12 +215,57 @@
                 <div class="text-content">{{ text }}</div>
             {% endfor %}
 
-
                 <div class="timestamp">{{ message.time_txt }}</div>
                 </div>
         {% endfor %}
 
     </div>
+
+    <div id="lightbox">
+        <span class="close-lightbox">&times;</span>
+        <img id="lightbox-img" src="" alt="Image agrandie">
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            const closeBtn = document.querySelector('.close-lightbox');
+            const imageContainers = document.querySelectorAll('.whatsapp-image');
+
+            // Ouvrir l'image au clic
+            imageContainers.forEach(container => {
+                container.addEventListener('click', function() {
+                    const fullImageUrl = this.getAttribute('data-full');
+                    lightboxImg.src = fullImageUrl;
+                    lightbox.classList.add('active');
+                    document.body.style.overflow = 'hidden'; // Bloque le scroll arrière
+                });
+            });
+
+            // Fermer proprement
+            function closeLightbox() {
+                lightbox.classList.remove('active');
+                document.body.style.overflow = ''; // Relâche le scroll
+                setTimeout(() => { lightboxImg.src = ''; }, 250); // Clean la src après l'animation
+            }
+
+            // Bind des events de fermeture (Click et Escape)
+            closeBtn.addEventListener('click', closeLightbox);
+
+            lightbox.addEventListener('click', function(e) {
+                if (e.target === lightbox || e.target === closeBtn) {
+                    closeLightbox();
+                }
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+                    closeLightbox();
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>
