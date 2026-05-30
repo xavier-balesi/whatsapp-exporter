@@ -42,6 +42,7 @@ class MessageReader:
             line = self.file.readline()
             if not line:
                 end_of_file = True
+                yield message
                 continue
             if self.is_first_line(line):
                 if message is not None:
