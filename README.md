@@ -8,6 +8,14 @@ which looks like whatsapp web.
 I did this project to keep the conversation I had with the women I love, and
 who is gone to sky.
 
+
+It allow to view images and videos, not yet vocals.
+As "reply" messages and reaction emojis are not present in the official whatsapp export, it's not present in the rendered html too.
+
+## Preview
+
+![image info](./doc/preview.png)
+
 ## Getting Started
 
 ### Dependencies
@@ -24,6 +32,7 @@ who is gone to sky.
 - Download zip export from whatsapp and unzip into a directory
 - the folder `whatsapp` is gitignored in the repository, it could be a good
   place.
+- remove the first line of the txt file in the directory
 - the program expect two arguments: the directory and the user name of the
   conversation owner (to know who you are).
 ```bash
@@ -32,6 +41,11 @@ uv run waexp <directory> <username>
 # Example
 uv run waexp whatsapp Xavier
 ```
+
+## TODO
+
+- ignore the first line to avoid to remove it manually
+- manage vocals messages
 
 ## Authors
 
